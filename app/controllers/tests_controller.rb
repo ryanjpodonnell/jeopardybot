@@ -1,4 +1,4 @@
-class Clue
+class Temp
   attr_accessor :text, :answer, :category, :value, :code
 end
 
@@ -8,6 +8,7 @@ class TestsController < ApplicationController
   
   def index 
     @clues = []
+    @tweets = []
     
     def write_round(page, round_name)
       title = page.css("title")
@@ -17,7 +18,7 @@ class TestsController < ApplicationController
 
       clue_tables = page.css("div##{round_name} td.clue>table")
       clue_tables.each do |clue_table|
-        c = Clue.new
+        c = Temp.new
 
         # Populate the clue text
         clue_text_cell = clue_table.css("td.clue_text").first
@@ -46,11 +47,10 @@ class TestsController < ApplicationController
         c.answer = answer
         
         c.code = SecureRandom::urlsafe_base64(4)
-
-        @clues.push(c)
-        # puts c.category
-        # puts c.text
-        # puts c.answer
+        
+        tweet = c.category + ": " + c.text + " #" + c.code
+        @tweets.push(tweet) if tweet.length <= 140
+        @clues.push(c) if tweet.length <= 140
       end
     end
  
@@ -59,6 +59,8 @@ class TestsController < ApplicationController
     ["jeopardy_round", "double_jeopardy_round"].each do |round_name|
       write_round(page, round_name)
     end
+    
+    
   
     @client = Twitter::REST::Client.new do |config|
       config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]

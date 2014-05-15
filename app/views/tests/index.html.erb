@@ -6,8 +6,8 @@
   <h1><%= tweet.uri() %></h1>
 <% end %> -->
 
+<h1><%= last_answered_tweet %></h1>
 
-<% @clues.each do |clue| %>
-<h1><%= clue.text %></h1>
-<h1><%= clue.code %></h1>
+<% @tweets.each do |tweet| %>
+<h1><%= tweet %></h1>
 <% end %>
