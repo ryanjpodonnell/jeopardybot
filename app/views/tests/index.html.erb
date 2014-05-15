@@ -1,0 +1,13 @@
+<!-- <% @client.mentions_timeline({:since_id => 467024588182798336}).each do |tweet| %>
+  <h1><%= tweet.text %></h1>
+  <% tweet.hashtags.each do |hashtag| %>
+    <h1><%= hashtag %></h1>
+  <% end %>
+  <h1><%= tweet.uri() %></h1>
+<% end %> -->
+
+
+<% @clues.each do |clue| %>
+<h1><%= clue.text %></h1>
+<h1><%= clue.code %></h1>
+<% end %>

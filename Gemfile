@@ -10,7 +10,8 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'nokogiri'
 gem 'figaro'
-gem "twitter"
+gem 'twitter'
+gem 'annotate'
 
 group :doc do
   gem 'sdoc', require: false
