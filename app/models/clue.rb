@@ -24,7 +24,9 @@ class Clue < ActiveRecord::Base
   def self.random_code
     while true do
       random_code = SecureRandom::urlsafe_base64(4)
-      return random_code if !Clue.where(:code => random_code).exists?
+      if !Clue.where(:code => random_code).exists? && !random_code.include?('-')
+        return random_code 
+      end
     end
   end
 end
