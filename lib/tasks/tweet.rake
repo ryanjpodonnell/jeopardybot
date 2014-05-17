@@ -39,7 +39,7 @@ namespace :tweet do
       next if tweet.hashtags.length == 0
       
       code = tweet.hashtags.first.text
-      answer = tweet.text.sub('@Jeopardy_Bot', '').sub('#' + code, '').strip
+      answer = tweet.text.sub('@Jeopardy_Bot', '').sub('#' + code, '').strip.downcase
       player = tweet.uri().to_s.split('/')[3]
       last_tweet_answered = tweet.uri().to_s.split('/')[5]
       
