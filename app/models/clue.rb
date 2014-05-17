@@ -19,4 +19,12 @@ class Clue < ActiveRecord::Base
   validates :category, :presence => true
   validates :value, :presence => true
   validates :code, :presence => true, :uniqueness => true
+  
+  
+  def self.random_code
+    while true do
+      random_code = SecureRandom::urlsafe_base64(4)
+      return random_code if !Clue.where(:code => random_code).exists?
+    end
+  end
 end

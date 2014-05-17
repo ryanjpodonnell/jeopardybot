@@ -39,7 +39,7 @@ namespace :scrape do
         answer.sub!(/"$/, "")
         c.answer = answer
         
-        c.code = SecureRandom::urlsafe_base64(4)
+        c.code = Clue.random_code
         
         tweet = c.category + ": " + c.text + " #" + c.code
         c.save if tweet.length <= 140

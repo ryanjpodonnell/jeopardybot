@@ -11,10 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140517004650) do
+ActiveRecord::Schema.define(version: 20140517183735) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bot_data", force: true do |t|
+    t.string   "last_tweet_read"
+    t.integer  "num_players"
+    t.string   "winner"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "clues", force: true do |t|
     t.string   "text"
