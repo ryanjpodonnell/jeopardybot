@@ -1,5 +1,9 @@
 module ApplicationHelper
+  def last_answered_tweet=(tweet_id)
+    @last_answered_tweet = tweet_id
+  end
+  
   def last_answered_tweet
-    467024588182798336
+    @last_answered_tweet
   end
 end

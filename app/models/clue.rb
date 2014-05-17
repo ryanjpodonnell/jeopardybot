@@ -19,5 +19,4 @@ class Clue < ActiveRecord::Base
   validates :category, :presence => true
   validates :value, :presence => true
   validates :code, :presence => true, :uniqueness => true
-  validates :tweeted, :presence => true
 end
