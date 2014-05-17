@@ -55,7 +55,7 @@ namespace :scrape do
         scrape_round(page, round_name)
       end
       
-      game = Game.find_by(game_id: 4504)
+      game = Game.find_by(game_id: game_id)
       game.scraped = true
       game.save
     end
