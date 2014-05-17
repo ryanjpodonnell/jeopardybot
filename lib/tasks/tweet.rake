@@ -63,7 +63,7 @@ namespace :tweet do
       winner = players.sort_by {|obj| obj.score}.last.handle
       value = players.sort_by {|obj| obj.score}.last.score      
       tweet = "Todays winner is @#{winner} with a total of $#{value}. Number of contestants: #{players.length}"
-      botData = BotData.new(:winner => winner, :num_players => num_contestants, :last_tweet_read => last_tweet_answered.to_s)
+      botData = BotData.new(:winner => winner, :num_players => players.length, :last_tweet_read => last_tweet_answered.to_s)
     else
       tweet = "Nobody even played today. You should all be ashamed"
       botData = BotData.new(:last_tweet_read => last_tweet_answered.to_s)
