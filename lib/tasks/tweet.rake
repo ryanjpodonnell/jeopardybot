@@ -56,14 +56,19 @@ namespace :tweet do
       end
     end
     
-    winner = players.length > 0 ? players.sort_by {|obj| obj.score}.last.handle : "No_Contest"
-    value = players.length > 0 ? players.sort_by {|obj| obj.score}.last.score : 0
-    num_contestants = players.length
+    tweet = ""
+    botData = nil
     
-    botData = BotData.new(:winner => winner, :num_players => num_contestants, :last_tweet_read => last_tweet_answered.to_s)
+    if players.length > 0
+      winner = players.sort_by {|obj| obj.score}.last.handle
+      value = players.sort_by {|obj| obj.score}.last.score      
+      tweet = "Todays winner is @#{winner} with a total of $#{value}. Number of contestants: #{players.length}"
+      botData = BotData.new(:winner => winner, :num_players => num_contestants, :last_tweet_read => last_tweet_answered.to_s)
+    else
+      tweet = "Nobody even played today. You should all be ashamed"
+      botData = BotData.new(:last_tweet_read => last_tweet_answered.to_s)
+    end
     botData.save
-    
-    tweet = "Todays winner is @#{winner} with a total of $#{value}."
-    puts tweet
+    client.update(tweet)
   end
 end
