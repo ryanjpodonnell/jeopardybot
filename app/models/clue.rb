@@ -23,8 +23,8 @@ class Clue < ActiveRecord::Base
   
   def self.random_code
     while true do
-      random_code = SecureRandom::urlsafe_base64(4)
-      if !Clue.where(:code => random_code).exists? && !random_code.include?('-')
+      random_code = SecureRandom::urlsafe_base64(4).upcase
+      if !Clue.where(:code => random_code).exists? && !random_code.include?('-') && !random_code.include?('_')
         return random_code 
       end
     end
