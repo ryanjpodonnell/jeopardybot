@@ -52,7 +52,7 @@ namespace :tweet do
       if player_idx.nil?
         players.push(Player.new(player, value))
       else
-        players[i].score += value
+        players[player_idx].score += value
       end
     end
     
