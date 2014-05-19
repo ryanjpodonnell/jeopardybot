@@ -60,5 +60,17 @@ namespace :scrape do
       game.save
     end
   end
-
+  
+  desc "Scrape J-Archive Game-Ids"
+  task game_ids: :environment do        
+    page = Nokogiri::HTML(open('http://www.j-archive.com/showseason.php?season=29'))
+    game_id = 0
+    game_links = page.css('a').select{|link| link.text[0] == '#'}
+    game_links.each do |link|
+      game_id = link.attributes["href"].value[-4..-1].to_i
+      if Game.where(:game_id => game_id).empty?
+        Game.new(:game_id => game_id).save
+      end
+    end
+  end
 end
