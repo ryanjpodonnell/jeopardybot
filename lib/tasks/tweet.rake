@@ -43,6 +43,7 @@ namespace :tweet do
       player = tweet.uri().to_s.split('/')[3]
       last_tweet_answered = tweet.uri().to_s.split('/')[5]
       
+      answer = answer.sub('?', '').sub("who was", "").sub("what is a", "").strip
       answer = answer.sub('?', '').sub("what is", "").sub("who is", "").sub("where is", "").strip
       
       clue = Clue.find_by(:code => code)
