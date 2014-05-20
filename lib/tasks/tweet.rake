@@ -16,6 +16,13 @@ def twitter
   end
 end
 
+def check_answer(guess, correct)
+  guess.split(' ').each do |word|
+    return false if !correct.include?(word)
+  end
+  return true
+end
+
 namespace :tweet do
   desc "Tweets an Untweeted Clue"
   task clue: :environment do
@@ -39,18 +46,18 @@ namespace :tweet do
       next if tweet.hashtags.length == 0
       
       code = tweet.hashtags.first.text
-      answer = tweet.text.sub('@Jeopardy_Bot', '').sub('#' + code, '').strip.downcase
       player = tweet.uri().to_s.split('/')[3]
       last_tweet_answered = tweet.uri().to_s.split('/')[5]
       
-      answer = answer.sub('?', '').sub("who was", "").sub("what is a", "").strip
-      answer = answer.sub('?', '').sub("what is", "").sub("who is", "").sub("where is", "").strip
+      answer = tweet.text.sub('@Jeopardy_Bot', '').sub('#' + code, '').downcase
+      answer = answer.sub("what is", "").sub("who is", "").sub("where is", "").sub("who was", "")
+      answer = answer.sub('a ', '').sub('?', '').strip
       
       clue = Clue.find_by(:code => code)
       next if clue.nil?
       
       player_idx = players.index {|p| p.handle == player}
-      value = clue.answer.include?(answer) ? clue.value : -(clue.value)
+      value = check_answer(answer, clue.answer) ? clue.value : -(clue.value)
       
       if player_idx.nil?
         players.push(Player.new(player, value))
