@@ -51,7 +51,7 @@ namespace :tweet do
       
       answer = tweet.text.sub('@Jeopardy_Bot', '').sub('#' + code, '').downcase
       answer = answer.sub("what is", "").sub("who is", "").sub("where is", "").sub("who was", "")
-      answer = answer.sub('a ', '').sub('?', '').strip
+      answer = answer.sub('a ', '').sub('?', '').sub('.', '').strip
       
       clue = Clue.find_by(:code => code)
       next if clue.nil?
