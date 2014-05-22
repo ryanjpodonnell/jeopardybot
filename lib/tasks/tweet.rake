@@ -57,7 +57,8 @@ namespace :tweet do
       next if clue.nil?
       
       player_idx = players.index {|p| p.handle == player}
-      value = check_answer(answer, clue.answer) ? clue.value : -(clue.value)
+      # value = check_answer(answer, clue.answer) ? clue.value : -(clue.value)
+      value = check_answer(answer, clue.answer) ? clue.value : 0
       
       if player_idx.nil?
         players.push(Player.new(player, value))
