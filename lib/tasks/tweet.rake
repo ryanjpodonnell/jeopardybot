@@ -76,8 +76,7 @@ namespace :tweet do
       tweet = "Nobody even played today. You should all be ashamed"
       botData = BotData.new(:last_tweet_read => last_tweet_answered.to_s)
     end
-    p tweet
-    # botData.save
-    # client.update(tweet)
+    botData.save
+    client.update(tweet)
   end
 end
