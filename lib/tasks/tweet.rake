@@ -16,11 +16,13 @@ def twitter
   end
 end
 
-def check_answer(guess, correct)
-  guess.split(' ').each do |word|
-    return false if !correct.include?(word)
+def check_answer(tweet, clue)
+  clue = clue.split(' ')
+  clue_dup = clue.dup
+  clue_dup.each do |word|
+    clue.delete(word) if tweet.include?(word)
   end
-  return true
+  return clue.empty?
 end
 
 namespace :tweet do
@@ -49,16 +51,11 @@ namespace :tweet do
       player = tweet.uri().to_s.split('/')[3]
       last_tweet_answered = tweet.uri().to_s.split('/')[5]
       
-      answer = tweet.text.sub('@Jeopardy_Bot', '').sub('#' + code, '').downcase
-      answer = answer.sub("what is", "").sub("who is", "").sub("where is", "").sub("who was", "")
-      answer = answer.sub('a ', '').sub('?', '').sub('.', '').strip
-      
       clue = Clue.find_by(:code => code)
       next if clue.nil?
       
       player_idx = players.index {|p| p.handle == player}
-      # value = check_answer(answer, clue.answer) ? clue.value : -(clue.value)
-      value = check_answer(answer, clue.answer) ? clue.value : 0
+      value = check_answer(tweet.text.downcase, clue.answer) ? clue.value : 0
       
       if player_idx.nil?
         players.push(Player.new(player, value))
@@ -79,7 +76,8 @@ namespace :tweet do
       tweet = "Nobody even played today. You should all be ashamed"
       botData = BotData.new(:last_tweet_read => last_tweet_answered.to_s)
     end
-    botData.save
-    client.update(tweet)
+    p tweet
+    # botData.save
+    # client.update(tweet)
   end
 end
