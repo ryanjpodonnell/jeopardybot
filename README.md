@@ -1,1 +1,1 @@
-(https://twitter.com/Jeopardy_Bot)[Jeopardy! Bot]
+[Jeopardy! Bot](https://twitter.com/Jeopardy_Bot)
