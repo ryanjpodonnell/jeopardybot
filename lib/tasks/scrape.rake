@@ -73,4 +73,17 @@ namespace :scrape do
       end
     end
   end
+
+  desc "Clean Up Clues"
+  task clean_up: :environment do
+    tweeted_clues = Clue.where(:tweeted => true)
+    tweeted_clues.each do |clue|
+      clue.destroy
+    end
+
+    here_clues = Clue.where("text like ?", "%here%")
+    here_clues.each do |clue|
+      clue.destroy
+    end
+  end
 end
