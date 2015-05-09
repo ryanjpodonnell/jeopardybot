@@ -63,7 +63,7 @@ namespace :scrape do
   
   desc "Scrape J-Archive Game-Ids"
   task game_ids: :environment do        
-    page = Nokogiri::HTML(open('http://www.j-archive.com/showseason.php?season=29'))
+    page = Nokogiri::HTML(open('http://www.j-archive.com/showseason.php?season=31'))
     game_id = 0
     game_links = page.css('a').select{|link| link.text[0] == '#'}
     game_links.each do |link|
