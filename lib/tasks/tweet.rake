@@ -25,16 +25,84 @@ def check_answer(tweet, clue)
   return clue.empty?
 end
 
+def parse_tweet(tweet)
+  tweeted_words = tweet.split(" ")
+  non_special_tweeted_words = tweeted_words.select { |word| word[0] != '@' && word[0] != '#' }
+
+  non_special_tweeted_words.join(" ")
+end
+
+def build_player_data
+  client = twitter
+  last_tweet_answered = BotData.last.last_tweet_read.to_i
+  players = []
+
+  tweets = client.mentions_timeline({:since_id => last_tweet_answered})
+  tweets.each do |tweet|
+    next if tweet.hashtags.length == 0
+
+    code = tweet.hashtags.first.text
+    player = tweet.uri().to_s.split('/')[3]
+
+    clue = Clue.find_by(:code => code)
+    next if clue.nil?
+
+    player_idx = players.index {|p| p.handle == player}
+    value = check_answer(tweet.text.downcase, clue.answer) ? clue.value : -clue.value
+
+    if player_idx.nil?
+      players.push(Player.new(player, value))
+    else
+      players[player_idx].score += value
+    end
+  end
+  players
+end
+
+def respond_to_last_clue
+  client = twitter
+  last_clue = Clue.last
+  players = build_player_data
+
+  tweets = client.mentions_timeline({:since_id => last_tweet_answered})
+  tweets.each do |tweet|
+    next if tweet.hashtags.length == 0
+    code = tweet.hashtags.first.text
+    next if code != last_clue.code
+
+    if code == last_clue.code
+      player_handle = tweet.uri().to_s.split('/')[3]
+      guessed_answer = parse_tweet(tweet.text.downcase)
+      correct_answer = last_clue.answer
+      response = check_answer(tweet.text.downcase, last_clue.answer)
+
+      player_idx = players.index {|p| p.handle == player}
+      total_value = players[player_idx].score
+
+      tweet = "@#{player_handle} {guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, daily_score: #{total_value}"
+      if tweet.count > 140
+        tweet = "@#{player_handle} {answer: #{correct_answer}, response: #{response}, daily_score: #{total_value}"
+      end
+      client.update(tweet)
+    end
+  end
+end
+
+def tweet_new_clue
+  clue = Clue.where(:tweeted => false).sample
+  tweet = "#{clue.category}($#{clue.value}): #{clue.text} ##{clue.code}"
+
+  client = twitter
+  client.update(tweet)
+  clue.tweeted = true
+  clue.save
+end
+
 namespace :tweet do
-  desc "Tweets an Untweeted Clue"
+  desc "Tweets an Untweeted Clue and Responds to Last Tweet"
   task clue: :environment do
-    clue = Clue.where(:tweeted => false).sample
-    tweet = clue.category + ": " + clue.text + " #" + clue.code
-    
-    client = twitter
-    client.update(tweet)
-    clue.tweeted = true
-    clue.save
+    respond_to_last_clue
+    tweet_new_clue
   end
   
   desc "Tweets the Daily Results"
@@ -55,7 +123,7 @@ namespace :tweet do
       next if clue.nil?
       
       player_idx = players.index {|p| p.handle == player}
-      value = check_answer(tweet.text.downcase, clue.answer) ? clue.value : 0
+      value = check_answer(tweet.text.downcase, clue.answer) ? clue.value : -clue.value
       
       if player_idx.nil?
         players.push(Player.new(player, value))

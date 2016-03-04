@@ -41,7 +41,7 @@ namespace :scrape do
         
         c.code = Clue.random_code
         
-        tweet = c.category + ": " + c.text + " #" + c.code
+        tweet = "#{c.category}($#{c.value}): #{c.text} ##{c.code}"
         c.save if tweet.length <= 140
       end
     end
@@ -63,7 +63,7 @@ namespace :scrape do
   
   desc "Scrape J-Archive Game-Ids"
   task game_ids: :environment do        
-    page = Nokogiri::HTML(open('http://www.j-archive.com/showseason.php?season=31'))
+    page = Nokogiri::HTML(open('http://www.j-archive.com/showseason.php?season=32'))
     game_id = 0
     game_links = page.css('a').select{|link| link.text[0] == '#'}
     game_links.each do |link|
