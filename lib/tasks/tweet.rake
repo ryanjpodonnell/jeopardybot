@@ -81,7 +81,7 @@ def respond_to_last_clue
       total_value = players[player_idx].score
 
       tweet = "@#{player_handle} {guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, daily_score: #{total_value}"
-      if tweet.count > 140
+      if tweet.length > 140
         tweet = "@#{player_handle} {answer: #{correct_answer}, response: #{response}, daily_score: #{total_value}"
       end
       client.update(tweet)
