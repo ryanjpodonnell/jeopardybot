@@ -77,7 +77,7 @@ def respond_to_last_clue
       correct_answer = last_clue.answer
       response = check_answer(tweet.text.downcase, last_clue.answer)
 
-      player_idx = players.index {|p| p.handle == player}
+      player_idx = players.index {|p| p.handle == player_handle}
       total_value = players[player_idx].score
 
       tweet = "@#{player_handle} {guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, daily_score: #{total_value}"
