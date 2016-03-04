@@ -61,7 +61,7 @@ end
 
 def respond_to_last_clue
   client = twitter
-  last_clue = Clue.last
+  last_clue = Clue.all.order(:updated_at).last
   last_tweet_answered = BotData.last.last_tweet_read.to_i
   players = build_player_data
 
