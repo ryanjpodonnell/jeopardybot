@@ -76,16 +76,15 @@ def respond_to_last_clue
       guessed_answer = parse_tweet(tweet.text.downcase)
       correct_answer = last_clue.answer
       response = check_answer(tweet.text.downcase, last_clue.answer)
-      tweet_status_id = tweet.id
 
       player_idx = players.index {|p| p.handle == player_handle}
       total_value = players[player_idx].score
 
-      tweet = "{guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
+      tweet = "@#{player_handle} {guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
       if tweet.length > 140
-        tweet = "{answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
+        tweet = "@#{player_handle} {answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
       end
-      client.update(tweet, :in_reply_to_status_id => tweet_status_id)
+      client.update(tweet)
     end
   end
 end
