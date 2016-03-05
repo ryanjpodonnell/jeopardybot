@@ -62,30 +62,26 @@ end
 def respond_to_last_clue
   client = twitter
   last_clue = Clue.all.order(:updated_at).last
-  last_tweet_answered = BotData.last.last_tweet_read.to_i
   players = build_player_data
 
-  tweets = client.mentions_timeline({:since_id => last_tweet_answered})
+  tweets = client.mentions_timeline({:since_id => last_clue.status_id})
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
+
     code = tweet.hashtags.first.text
-    next if code != last_clue.code
+    clue = Clue.find_by(:code => code)
+    next if clue.nil?
 
-    if code == last_clue.code
-      player_handle = tweet.uri().to_s.split('/')[3]
-      guessed_answer = parse_tweet(tweet.text.downcase)
-      correct_answer = last_clue.answer
-      response = check_answer(tweet.text.downcase, last_clue.answer)
+    player_handle = tweet.uri().to_s.split('/')[3]
+    guessed_answer = parse_tweet(tweet.text.downcase)
+    correct_answer = clue.answer
+    response = check_answer(tweet.text.downcase, clue.answer)
 
-      player_idx = players.index {|p| p.handle == player_handle}
-      total_value = players[player_idx].score
+    player_idx = players.index {|p| p.handle == player_handle}
+    total_value = players[player_idx].score
 
-      tweet = "@#{player_handle} {guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
-      if tweet.length > 140
-        tweet = "@#{player_handle} {answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
-      end
-      client.update(tweet)
-    end
+    tweet = "@#{player_handle} {guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
+    client.update(tweet)
   end
 end
 
