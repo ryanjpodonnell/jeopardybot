@@ -116,7 +116,6 @@ namespace :tweet do
       
       code = tweet.hashtags.first.text
       player = tweet.uri().to_s.split('/')[3]
-      last_tweet_answered = tweet.uri().to_s.split('/')[5]
       
       clue = Clue.find_by(:code => code)
       next if clue.nil?
@@ -133,15 +132,16 @@ namespace :tweet do
     
     tweet = ""
     botData = nil
+    last_tweet_read = tweets.sort {|a,b| a.id <=> b.id}.last.id
     
     if players.length > 0
       winner = players.sort_by {|obj| obj.score}.last.handle
       value = players.sort_by {|obj| obj.score}.last.score      
       tweet = "Todays winner is @#{winner} with a total of $#{value}. Number of contestants: #{players.length}"
-      botData = BotData.new(:winner => winner, :num_players => players.length, :last_tweet_read => last_tweet_answered.to_s)
+      botData = BotData.new(:winner => winner, :num_players => players.length, :last_tweet_read => last_tweet_read.to_s)
     else
       tweet = "Nobody even played today. You should all be ashamed"
-      botData = BotData.new(:last_tweet_read => last_tweet_answered.to_s)
+      botData = BotData.new(:last_tweet_read => last_tweet_read.to_s)
     end
     botData.save
     client.update(tweet)
