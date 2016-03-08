@@ -35,9 +35,10 @@ end
 def build_player_data
   client = twitter
   last_tweet_answered = BotData.last.last_tweet_read.to_i
+  last_clue = Clue.all.order(:updated_at).last.status_id.to_i
   players = []
 
-  tweets = client.mentions_timeline({:since_id => last_tweet_answered})
+  tweets = client.mentions_timeline({:since_id => [last_tweet_answered, last_clue].min})
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
 
