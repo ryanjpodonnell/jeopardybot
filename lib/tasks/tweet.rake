@@ -45,7 +45,7 @@ def build_player_data
     code = tweet.hashtags.first.text
     player = tweet.uri().to_s.split('/')[3]
 
-    clue = Clue.find_by(:code => code)
+    clue = Clue.find_by(:code => code.upcase)
     next if clue.nil?
 
     player_idx = players.index {|p| p.handle == player}
@@ -70,7 +70,7 @@ def respond_to_last_clue
     next if tweet.hashtags.length == 0
 
     code = tweet.hashtags.first.text
-    clue = Clue.find_by(:code => code)
+    clue = Clue.find_by(:code => code.upcase)
     next if clue.nil?
 
     player_handle = tweet.uri().to_s.split('/')[3]
@@ -118,7 +118,7 @@ namespace :tweet do
       code = tweet.hashtags.first.text
       player = tweet.uri().to_s.split('/')[3]
       
-      clue = Clue.find_by(:code => code)
+      clue = Clue.find_by(:code => code.upcase)
       next if clue.nil?
       
       player_idx = players.index {|p| p.handle == player}
