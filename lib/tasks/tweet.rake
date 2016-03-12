@@ -81,7 +81,7 @@ def respond_to_last_clue
     player_idx = players.index {|p| p.handle == player_handle}
     total_value = players[player_idx].score
 
-    tweet = "@#{player_handle} {guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
+    tweet = "@#{player_handle} {code: ##{code}, guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"
     client.update(tweet)
   end
 end
