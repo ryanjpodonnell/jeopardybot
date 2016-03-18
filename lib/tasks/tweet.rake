@@ -17,7 +17,8 @@ def twitter
 end
 
 def check_answer(tweet, clue)
-  clue = clue.split(' ')
+  clue = clue.split(' ').select{|word| word[0] != '('}
+  clue.shift if clue.first == "the"
   clue_dup = clue.dup
   clue_dup.each do |word|
     clue.delete(word) if tweet.include?(word)
