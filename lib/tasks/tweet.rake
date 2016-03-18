@@ -91,7 +91,7 @@ def tweet_new_clue
   tweet = "#{clue.category}($#{clue.value}): #{clue.text} ##{clue.code}"
 
   client = twitter
-  clue_tweet = client.update(tweet)
+  clue_tweet = client.update(tweet) if tweet.length <= 140
 
   clue.tweeted = true
   clue.status_id = clue_tweet.id
