@@ -19,7 +19,7 @@ end
 def check_answer(tweet, clue)
   tweet.gsub!(/[^0-9a-z ]/i, '')
   clue = clue.split(' ').select{|word| word[0] != '('}
-  clue.shift if clue.first == "the"
+  clue.shift if clue.first == "the" || clue.first == "a"
   clue.map!{|word| word.gsub(/[^0-9a-z ]/i, '')}
   clue_dup = clue.dup
   clue_dup.each do |word|
