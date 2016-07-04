@@ -41,7 +41,12 @@ def build_player_data
   last_clue = Clue.all.order(:updated_at).last.status_id.to_i
   players = []
 
-  tweets = client.mentions_timeline({:since_id => [last_tweet_answered, last_clue].min})
+  if last_clue == 0
+    tweets = client.mentions_timeline({:since_id => last_tweet_answered})
+  else
+    tweets = client.mentions_timeline({:since_id => [last_tweet_answered, last_clue].min})
+  end
+
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
 
@@ -66,9 +71,15 @@ end
 def respond_to_last_clue
   client = twitter
   last_clue = Clue.all.order(:updated_at).last
+  last_clue_status = last_clue.status_id.to_i
   players = build_player_data
 
-  tweets = client.mentions_timeline({:since_id => last_clue.status_id})
+  if last_clue_status == 0
+    tweets = []
+  else
+    tweets = client.mentions_timeline({:since_id => last_clue.status_id})
+  end
+
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
 
