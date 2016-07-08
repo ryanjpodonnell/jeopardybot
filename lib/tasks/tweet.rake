@@ -8,7 +8,7 @@ class Player
 end
 
 def twitter
-  twitter = Twitter::REST::Client.new do |config|
+  Twitter::REST::Client.new do |config|
     config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
     config.consumer_secret     = ENV["TWITTER_CONSUMER_SECRET"]
     config.access_token        = ENV["TWITTER_ACCESS_TOKEN"]
@@ -18,14 +18,10 @@ end
 
 def check_answer(tweet, clue)
   tweet.gsub!(/[^0-9a-z ]/i, '')
-  clue = clue.split(' ').select{|word| word[0] != '('}
-  clue.shift if clue.first == "the" || clue.first == "a"
-  clue.map!{|word| word.gsub(/[^0-9a-z ]/i, '')}
-  clue_dup = clue.dup
-  clue_dup.each do |word|
-    clue.delete(word) if tweet.include?(word)
-  end
-  return clue.empty?
+  clue.gsub!(/[^0-9a-z ]/i, '')
+
+  levenshtein_distance =  Levenshtein.distance(tweet, clue)
+  levenshtein_distance <= 20 ? true : false
 end
 
 def parse_tweet(tweet)
@@ -35,50 +31,39 @@ def parse_tweet(tweet)
   non_special_tweeted_words.join(" ")
 end
 
-def build_player_data
-  client = twitter
-  last_tweet_answered = BotData.last.last_tweet_read.to_i
-  last_clue = Clue.all.order(:updated_at).last.status_id.to_i
+def build_player_data(client)
+  yesterdays_final_clue = BotData.last.last_tweet_read.to_i
+  tweets = client.mentions_timeline({:since_id => yesterdays_final_clue})
   players = []
-
-  if last_clue == 0
-    tweets = client.mentions_timeline({:since_id => last_tweet_answered})
-  else
-    tweets = client.mentions_timeline({:since_id => [last_tweet_answered, last_clue].min})
-  end
 
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
 
     code = tweet.hashtags.first.text
-    player = tweet.uri().to_s.split('/')[3]
-
     clue = Clue.find_by(:code => code.upcase)
+
     next if clue.nil?
 
-    player_idx = players.index {|p| p.handle == player}
+    player = tweet.uri().to_s.split('/')[3]
     value = check_answer(tweet.text.downcase, clue.answer) ? clue.value : -clue.value
 
+    player_idx = players.index {|p| p.handle == player}
     if player_idx.nil?
       players.push(Player.new(player, value))
     else
       players[player_idx].score += value
     end
   end
+
   players
 end
 
-def respond_to_last_clue
-  client = twitter
-  last_clue = Clue.all.order(:updated_at).last
-  last_clue_status = last_clue.status_id.to_i
-  players = build_player_data
+def respond_to_most_recent_clue(client)
+  most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last
+  most_recent_clue_status = most_recent_clue.status_id.to_i
+  players = build_player_data(client)
 
-  if last_clue_status == 0
-    tweets = []
-  else
-    tweets = client.mentions_timeline({:since_id => last_clue.status_id})
-  end
+  tweets = client.mentions_timeline({:since_id => most_recent_clue_status})
 
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
@@ -100,11 +85,10 @@ def respond_to_last_clue
   end
 end
 
-def tweet_new_clue
+def tweet_new_clue(client)
   clue = Clue.where(:tweeted => false).sample
   tweet = "#{clue.category}($#{clue.value}): #{clue.text} ##{clue.code}"
 
-  client = twitter
   clue_tweet = client.update(tweet) if tweet.length <= 140
 
   clue.tweeted = true
@@ -115,50 +99,34 @@ end
 namespace :tweet do
   desc "Tweets an Untweeted Clue and Responds to Last Tweet"
   task clue: :environment do
-    respond_to_last_clue
-    tweet_new_clue
+    begin
+      client = twitter
+      respond_to_most_recent_clue(client)
+      tweet_new_clue(client)
+    rescue
+      client.update("@RyanJPODonnell fix me please")
+    end
   end
   
   desc "Tweets the Daily Results"
   task results: :environment do
-    client = twitter
-    last_tweet_answered = BotData.last.last_tweet_read.to_i
-    players = []
-    
-    tweets = client.mentions_timeline({:since_id => last_tweet_answered})
-    tweets.each do |tweet|
-      next if tweet.hashtags.length == 0
+    begin
+      client = twitter
+      players = build_player_data(client)
+      most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last
       
-      code = tweet.hashtags.first.text
-      player = tweet.uri().to_s.split('/')[3]
-      
-      clue = Clue.find_by(:code => code.upcase)
-      next if clue.nil?
-      
-      player_idx = players.index {|p| p.handle == player}
-      value = check_answer(tweet.text.downcase, clue.answer) ? clue.value : -clue.value
-      
-      if player_idx.nil?
-        players.push(Player.new(player, value))
+      if players.length > 0
+        winner = players.sort_by {|obj| obj.score}.last.handle
+        value = players.sort_by {|obj| obj.score}.last.score
+
+        client.update("Todays winner is @#{winner} with a total of $#{value}. Number of contestants: #{players.length}")
+        BotData.create(:winner => winner, :num_players => players.length, :last_tweet_read => most_recent_clue.status_id)
       else
-        players[player_idx].score += value
+        client.update("Nobody even played today. You should all be ashamed")
+        BotData.create(:last_tweet_read => most_recent_clue)
       end
+    rescue
+      client.update("@RyanJPODonnell fix me please")
     end
-    
-    tweet = ""
-    botData = nil
-    last_tweet_read = tweets.sort {|a,b| a.id <=> b.id}.last.id
-    
-    if players.length > 0
-      winner = players.sort_by {|obj| obj.score}.last.handle
-      value = players.sort_by {|obj| obj.score}.last.score      
-      tweet = "Todays winner is @#{winner} with a total of $#{value}. Number of contestants: #{players.length}"
-      botData = BotData.new(:winner => winner, :num_players => players.length, :last_tweet_read => last_tweet_read.to_s)
-    else
-      tweet = "Nobody even played today. You should all be ashamed"
-      botData = BotData.new(:last_tweet_read => last_tweet_read.to_s)
-    end
-    botData.save
-    client.update(tweet)
   end
 end

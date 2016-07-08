@@ -11,6 +11,7 @@ gem 'jbuilder', '~> 1.2'
 gem 'nokogiri'
 gem 'figaro'
 gem 'twitter'
+gem 'levenshtein'
 gem 'annotate'
 
 group :doc do
