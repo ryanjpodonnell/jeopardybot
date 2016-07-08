@@ -33,7 +33,8 @@ end
 
 def build_player_data(client)
   yesterdays_final_clue = BotData.last.last_tweet_read.to_i
-  tweets = client.mentions_timeline({:since_id => yesterdays_final_clue})
+  most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last.status_id.to_i
+  tweets = client.mentions_timeline({:since_id => [yesterdays_final_clue, most_recent_clue].min})
   players = []
 
   tweets.each do |tweet|
@@ -114,7 +115,7 @@ namespace :tweet do
       client = twitter
       players = build_player_data(client)
       most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last
-      
+
       if players.length > 0
         winner = players.sort_by {|obj| obj.score}.last.handle
         value = players.sort_by {|obj| obj.score}.last.score
@@ -123,7 +124,7 @@ namespace :tweet do
         BotData.create(:winner => winner, :num_players => players.length, :last_tweet_read => most_recent_clue.status_id)
       else
         client.update("Nobody even played today. You should all be ashamed")
-        BotData.create(:last_tweet_read => most_recent_clue)
+        BotData.create(:last_tweet_read => most_recent_clue.status_id)
       end
     rescue
       client.update("@RyanJPODonnell fix me please")
