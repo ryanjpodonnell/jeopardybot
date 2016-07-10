@@ -17,7 +17,7 @@ def twitter
 end
 
 def check_answer(tweet, clue)
-  tweet.gsub!(/[^0-9a-z ]/, '').gsub!(/^(who |what |where |when )(is | are )/, '')
+  tweet.gsub!(/[^0-9a-z ]/, '').gsub!(/^(who |what |where |when )(is |are )/, '')
   clue.gsub!(/[^0-9a-z ]/, '')
 
   levenshtein_distance =  Levenshtein.distance(tweet, clue)
@@ -42,15 +42,16 @@ def build_player_data(client)
 
     code = tweet.hashtags.first.text
     clue = Clue.find_by(:code => code.upcase)
-
     next if clue.nil?
 
-    player = tweet.uri().to_s.split('/')[3]
-    value = check_answer(tweet.text.downcase, clue.answer) ? clue.value : -clue.value
+    player_handle = tweet.uri().to_s.split('/')[3]
+    guessed_answer = parse_tweet(tweet.text.downcase)
+    correct_answer = clue.answer
+    value = check_answer(guessed_answer, correct_answer) ? clue.value : -clue.value
 
-    player_idx = players.index {|p| p.handle == player}
+    player_idx = players.index {|p| p.handle == player_handle}
     if player_idx.nil?
-      players.push(Player.new(player, value))
+      players.push(Player.new(player_handle, value))
     else
       players[player_idx].score += value
     end
@@ -60,11 +61,9 @@ def build_player_data(client)
 end
 
 def respond_to_most_recent_clue(client)
-  most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last
-  most_recent_clue_status = most_recent_clue.status_id.to_i
+  most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last.status_id.to_i
+  tweets = client.mentions_timeline({:since_id => most_recent_clue})
   players = build_player_data(client)
-
-  tweets = client.mentions_timeline({:since_id => most_recent_clue_status})
 
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
@@ -76,7 +75,7 @@ def respond_to_most_recent_clue(client)
     player_handle = tweet.uri().to_s.split('/')[3]
     guessed_answer = parse_tweet(tweet.text.downcase)
     correct_answer = clue.answer
-    response = check_answer(tweet.text.downcase, clue.answer)
+    response = check_answer(guessed_answer, correct_answer)
 
     player_idx = players.index {|p| p.handle == player_handle}
     total_value = players[player_idx].score
