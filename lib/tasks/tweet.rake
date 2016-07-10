@@ -17,8 +17,8 @@ def twitter
 end
 
 def check_answer(tweet, clue)
-  tweet.gsub!(/[^0-9a-z ]/i, '')
-  clue.gsub!(/[^0-9a-z ]/i, '')
+  tweet.gsub!(/[^0-9a-z ]/, '').gsub!(/^(who |what |where |when )(is | are )/, '')
+  clue.gsub!(/[^0-9a-z ]/, '')
 
   levenshtein_distance =  Levenshtein.distance(tweet, clue)
   levenshtein_distance <= 20 ? true : false
