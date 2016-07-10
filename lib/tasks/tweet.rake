@@ -80,8 +80,9 @@ def respond_to_most_recent_clue(client)
 
     player_idx = players.index {|p| p.handle == player_handle}
     total_value = players[player_idx].score
+    guess = parse_tweet(tweet.text)
 
-    tweet = "@#{player_handle} {code: ##{code}, guess: #{guessed_answer}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"[0...140]
+    tweet = "@#{player_handle} {code: ##{code}, guess: #{guess}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"[0...140]
     client.update(tweet)
   end
 end
