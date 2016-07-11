@@ -18,9 +18,9 @@ end
 
 def check_answer(tweet, clue)
   tweet.gsub!(/[^0-9a-z ]/, '')
-  tweet.gsub!(/^(who |what |where |when )(is |are )(a |the )*/, '')
+  tweet.gsub!(/^(who |what |where |when )(is |are )(a |an |the )*/, '')
   clue.gsub!(/[^0-9a-z ]/, '')
-  clue.gsub!(/^(a |the )/, '')
+  clue.gsub!(/^(a |an |the )/, '')
 
   levenshtein_distance =  Levenshtein.distance(tweet, clue)
   levenshtein_distance <= 2 ? true : false
@@ -76,14 +76,13 @@ def respond_to_most_recent_clue(client)
 
     player_handle = tweet.uri().to_s.split('/')[3]
     guessed_answer = parse_tweet(tweet.text.downcase)
-    correct_answer = clue.answer
-    response = check_answer(guessed_answer, correct_answer)
+    response = check_answer(guessed_answer, clue.answer)
 
     player_idx = players.index {|p| p.handle == player_handle}
     total_value = players[player_idx].score
     guess = parse_tweet(tweet.text)
 
-    tweet = "@#{player_handle} {code: ##{code}, guess: #{guess}, answer: #{correct_answer}, response: #{response}, total_score: #{total_value}}"[0...140]
+    tweet = "@#{player_handle} {code: ##{code}, guess: #{guess}, answer: #{clue.answer}, response: #{response}, total_score: #{total_value}}"[0...140]
     client.update(tweet)
   end
 end
