@@ -75,14 +75,14 @@ def respond_to_most_recent_clue(client)
     next if clue.nil?
 
     player_handle = tweet.uri().to_s.split('/')[3]
-    guessed_answer = parse_tweet(tweet.text.downcase)
-    response = check_answer(guessed_answer, clue.answer)
+    answer = clue.answer
+    guess = parse_tweet(tweet.text)
+    response = check_answer(guess.dup.downcase, answer.dup)
 
     player_idx = players.index {|p| p.handle == player_handle}
     total_value = players[player_idx].score
-    guess = parse_tweet(tweet.text)
 
-    tweet = "@#{player_handle} {code: ##{code}, guess: #{guess}, answer: #{clue.answer}, response: #{response}, total_score: #{total_value}}"[0...140]
+    tweet = "@#{player_handle} {code: ##{code}, guess: #{guess}, answer: #{answer}, response: #{response}, total_score: #{total_value}}"[0...140]
     client.update(tweet)
   end
 end
