@@ -88,13 +88,13 @@ def respond_to_most_recent_clue(client)
 end
 
 def tweet_new_clue(client)
-  clue = Clue.where(:tweeted => false).sample
-  tweet = "#{clue.category}($#{clue.value}): #{clue.text} ##{clue.code}"
-
-  clue_tweet = client.update(tweet) if tweet.length <= 140
+  begin
+    clue = Clue.where(:tweeted => false).sample
+    tweet = "#{clue.category}($#{clue.value}): #{clue.text} ##{clue.code}"
+  end while tweet.length > 140
 
   clue.tweeted = true
-  clue.status_id = clue_tweet.id
+  clue.status_id = client.update(tweet).id
   clue.save
 end
 
