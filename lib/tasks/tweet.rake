@@ -18,7 +18,7 @@ end
 
 def check_answer(tweet, clue)
   tweet.gsub!(/[^0-9a-z ]/, '')
-  tweet.gsub!(/^(who |what |where |when )(is |are )(a |an |the )*/, '')
+  tweet.gsub!(/^(who |what |where |when )(is |are )(a |an |the )?|^(a |an |the )/, '')
   clue.gsub!(/[^0-9a-z ]/, '')
   clue.gsub!(/^(a |an |the )/, '')
 
