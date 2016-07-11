@@ -22,7 +22,7 @@ def check_answer(tweet, clue)
   clue.gsub!(/[^0-9a-z ]/, '')
 
   levenshtein_distance =  Levenshtein.distance(tweet, clue)
-  levenshtein_distance <= 20 ? true : false
+  levenshtein_distance <= 5 ? true : false
 end
 
 def parse_tweet(tweet)
