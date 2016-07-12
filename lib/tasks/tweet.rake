@@ -119,7 +119,7 @@ namespace :tweet do
         champion = players.sort_by {|obj| obj.score}.last
 
         twitter.update("Todays winner is @#{champion.handle} with a total of $#{champion.score}. Number of contestants: #{players.length}")
-        BotData.create(:winner => winner, :num_players => players.length, :last_tweet_read => most_recent_clue.status_id)
+        BotData.create(:winner => champion.handle, :num_players => players.length, :last_tweet_read => most_recent_clue.status_id)
       else
         twitter.update("Nobody even played today. You should all be ashamed")
         BotData.create(:last_tweet_read => most_recent_clue.status_id)
