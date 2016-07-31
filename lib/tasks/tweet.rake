@@ -17,10 +17,12 @@ def twitter
 end
 
 def check_answer(tweet, clue)
-  tweet.gsub!(/[^0-9a-z ]/, '')
+  tweet.gsub!(/[^0-9a-z &]/, '')
   tweet.gsub!(/^(who |what |where |when )(is |are )(a |an |the |to )?|^(a |an |the |to )/, '')
-  clue.gsub!(/[^0-9a-z ]/, '')
+  tweet.gsub!('&', 'and')
+  clue.gsub!(/[^0-9a-z &]/, '')
   clue.gsub!(/^(a |an |the |to )/, '')
+  clue.gsub!('&', 'and')
 
   levenshtein_distance =  Levenshtein.distance(tweet, clue)
   levenshtein_distance <= 2 ? true : false
