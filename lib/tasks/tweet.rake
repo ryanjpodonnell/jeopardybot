@@ -17,6 +17,10 @@ def twitter
 end
 
 def check_answer(tweet, clue)
+  coder = HTMLEntities.new
+  tweet = coder.decode(tweet)
+  clue = coder.decode(clue)
+
   tweet.gsub!(/[^0-9a-z &]/, '')
   tweet.gsub!(/^(who |what |where |when )(is |are )(a |an |the |to )?|^(a |an |the |to )/, '')
   tweet.gsub!('&', 'and')

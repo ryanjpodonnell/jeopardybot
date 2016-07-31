@@ -13,6 +13,7 @@ gem 'figaro'
 gem 'twitter'
 gem 'levenshtein'
 gem 'annotate'
+gem 'htmlentities'
 
 group :doc do
   gem 'sdoc', require: false

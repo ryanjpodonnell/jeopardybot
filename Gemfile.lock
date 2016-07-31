@@ -49,6 +49,7 @@ GEM
       bundler (~> 1.0)
       rails (>= 3, < 5)
     hike (1.2.3)
+    htmlentities (4.3.4)
     http (0.6.1)
       http_parser.rb (~> 0.6.0)
     http_parser.rb (0.6.0)
@@ -146,6 +147,7 @@ DEPENDENCIES
   byebug
   coffee-rails (~> 4.0.0)
   figaro
+  htmlentities
   jbuilder (~> 1.2)
   jquery-rails
   levenshtein
