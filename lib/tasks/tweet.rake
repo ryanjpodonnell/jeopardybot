@@ -39,11 +39,20 @@ def parse_tweet(tweet)
   non_special_tweeted_words.join(" ")
 end
 
+def most_recent_clue
+  Clue.where(:tweeted => true).order(:updated_at).last.status_id.to_i
+end
+
+def yesterdays_final_clue
+  BotData.last.last_tweet_read.to_i
+end
+
 def build_player_data
-  yesterdays_final_clue = BotData.last.last_tweet_read.to_i
-  most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last.status_id.to_i
-  tweets = twitter.mentions_timeline({:since_id => [yesterdays_final_clue, most_recent_clue].min})
   players = []
+  tweets = twitter.mentions_timeline({
+    :since_id => [yesterdays_final_clue, most_recent_clue].min,
+    :count => 200,
+  })
 
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
@@ -69,9 +78,11 @@ def build_player_data
 end
 
 def respond_to_most_recent_clue
-  most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last.status_id.to_i
-  tweets = twitter.mentions_timeline({:since_id => most_recent_clue})
   players = build_player_data
+  tweets = twitter.mentions_timeline({
+    :since_id => most_recent_clue,
+    :count => 200,
+  })
 
   tweets.each do |tweet|
     next if tweet.hashtags.length == 0
@@ -119,16 +130,15 @@ namespace :tweet do
   task results: :environment do
     begin
       players = build_player_data
-      most_recent_clue = Clue.where(:tweeted => true).order(:updated_at).last
 
       if players.length > 0
         champion = players.sort_by {|obj| obj.score}.last
 
         twitter.update("Todays winner is @#{champion.handle} with a total of $#{champion.score}. Number of contestants: #{players.length}")
-        BotData.create(:winner => champion.handle, :num_players => players.length, :last_tweet_read => most_recent_clue.status_id)
+        BotData.create(:winner => champion.handle, :num_players => players.length, :last_tweet_read => most_recent_clue.to_s)
       else
         twitter.update("Nobody even played today. You should all be ashamed")
-        BotData.create(:last_tweet_read => most_recent_clue.status_id)
+        BotData.create(:last_tweet_read => most_recent_clue.to_s)
       end
     rescue
       twitter.update("@RyanJPODonnell fix me please")
