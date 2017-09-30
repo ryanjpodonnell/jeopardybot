@@ -119,7 +119,7 @@ namespace :tweet do
   desc "Tweets an Untweeted Clue and Responds to Last Tweet"
   task clue: :environment do
     begin
-      respond_to_most_recent_clue
+      # respond_to_most_recent_clue
       tweet_new_clue
     rescue
       twitter.update("@RyanJPODonnell fix me please")
