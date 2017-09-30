@@ -35,6 +35,7 @@ namespace :scrape do
         answer = $1
         answer = answer.downcase
         answer.sub!(/^<i>/, "")
+        answer.sub!(/<\/i>/, "")
         answer.sub!(/^"/, "")
         answer.sub!(/"$/, "")
         c.answer = answer
@@ -63,7 +64,7 @@ namespace :scrape do
   
   desc "Scrape J-Archive Game-Ids"
   task game_ids: :environment do        
-    page = Nokogiri::HTML(open('http://www.j-archive.com/showseason.php?season=32'))
+    page = Nokogiri::HTML(open('http://www.j-archive.com/showseason.php?season=33'))
     game_id = 0
     game_links = page.css('a').select{|link| link.text[0] == '#'}
     game_links.each do |link|
@@ -84,6 +85,14 @@ namespace :scrape do
     here_clues = Clue.where("text like ?", "%here%")
     here_clues.each do |clue|
       clue.destroy
+    end
+  end
+
+  desc "Clean Up Games"
+  task clean_up_games: :environment do
+    scraped_games = Game.where(:scraped => true)
+    scraped_games.each do |game|
+      game.destroy
     end
   end
 end
