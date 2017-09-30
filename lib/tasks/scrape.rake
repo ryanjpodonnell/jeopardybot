@@ -77,30 +77,18 @@ namespace :scrape do
 
   desc "Clean Up Clues"
   task clean_up: :environment do
-    tweeted_clues = Clue.where(:tweeted => true).where("created_at < ?", 1.day.ago)
-    tweeted_clues.each do |clue|
-      clue.destroy
-    end
-
-    here_clues = Clue.where("text like ?", "%here%")
-    here_clues.each do |clue|
-      clue.destroy
-    end
+    Clue.where(:tweeted => true).where("created_at < ?", 1.day.ago).each(&:destroy)
+    Clue.where("text like ?", "%here%").each(&:destroy)
+    Clue.where("text like ?", "%(%").each(&:destroy)
   end
 
   desc "Clean Up Games"
   task clean_up_games: :environment do
-    scraped_games = Game.where(:scraped => true)
-    scraped_games.each do |game|
-      game.destroy
-    end
+    Game.where(:scraped => true).each(&:destroy)
   end
 
   desc "Clean Up BotData"
   task clean_up_bot_data: :environment do
-    bot_data = BotData.where("created_at < ?", 1.month.ago)
-    bot_data.each do |game|
-      game.destroy
-    end
+    BotData.where("created_at < ?", 1.month.ago).each(&:destroy)
   end
 end
