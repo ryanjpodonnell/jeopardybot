@@ -19,3 +19,4 @@
 /config/application.yml
 
 /.byebug_history
+*.swp

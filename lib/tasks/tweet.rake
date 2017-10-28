@@ -23,7 +23,7 @@ def check_answer(tweet, clue)
 
   tweet.gsub!('&', 'and')
   tweet.gsub!(/[^0-9a-z ]/, '')
-  tweet.gsub!(/^(who |what |where |when )(is |are |was |were )(a |an |the |to )?|^(a |an |the |to )/, '')
+  tweet.gsub!(/^(who |what |where |when |whats )(is |are |was |were )?(a |an |the |to )?|^(a |an |the |to )/, '')
   clue.gsub!('&', 'and')
   clue.gsub!(/[^0-9a-z ]/, '')
   clue.gsub!(/^(a |an |the |to )/, '')
