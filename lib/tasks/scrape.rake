@@ -78,7 +78,7 @@ namespace :scrape do
 
   desc "Clean Up Clues"
   task clean_up: :environment do
-    Clue.where(:tweeted => true).where("created_at < ?", 1.day.ago).each(&:destroy)
+    Clue.where(:tweeted => true).where("updated_at < ?", 1.day.ago).each(&:destroy)
     Clue.where("text like ?", "%here%").each(&:destroy)
     Clue.where("text like ?", "%(%").each(&:destroy)
   end
@@ -90,6 +90,6 @@ namespace :scrape do
 
   desc "Clean Up BotData"
   task clean_up_bot_data: :environment do
-    BotData.where("created_at < ?", 1.month.ago).each(&:destroy)
+    BotData.where("updated_at < ?", 1.month.ago).each(&:destroy)
   end
 end
