@@ -2,6 +2,10 @@ class TweetDetails
   attr_reader :code, :guess, :answer, :response, :value, :player_handle
 
   def initialize(tweet)
+    hashtags = tweet.hashtags
+    code = hashtags.first.text.upcase
+    clue = Clue.find_by(:code => code)
+
     @code = code
     @player_handle = tweet.uri.to_s.split('/')[3]
     @guess = Judge.parse_text(tweet.text.dup)
