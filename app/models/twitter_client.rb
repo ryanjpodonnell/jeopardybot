@@ -58,6 +58,20 @@ class TwitterClient
     clue.save
   end
 
+  def tweet_summary
+    number_of_contestants = contestant_data.length
+
+    if number_of_contestants > 0
+      champion = contestant_data.values.sort{ |a, b|  b.score <=> a.score }.first
+
+      @client.update("Todays winner is @#{champion.handle} with a total of $#{champion.score}. Number of contestants: #{number_of_contestants}")
+      BotData.create(:winner => champion.handle, :num_players => number_of_contestants, :last_tweet_read => BotData.most_recent_clue.to_s)
+    else
+      @client.update("Nobody JEOP'd today! @ryanjpodonnell spice it up!")
+      BotData.create(:last_tweet_read => BotData.most_recent_clue.to_s)
+    end
+  end
+
   private
 
   def recent_tweets(since)
