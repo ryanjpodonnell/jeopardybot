@@ -22,7 +22,7 @@ class TwitterClient
       player = contestants[player_handle]
       if player.nil?
         player = Player.new(player_handle, tweet_details.value)
-        contestants[player_handle] = players
+        contestants[player_handle] = player
       else
         contestants[player_handle].score += tweet_details.value
       end
@@ -32,7 +32,7 @@ class TwitterClient
   end
 
   def respond_to_most_recent_clue
-    players = contestant_data
+    contestants = contestant_data
     since = BotData.most_recent_clue
 
     recent_tweets(since).each do |tweet|
@@ -40,7 +40,7 @@ class TwitterClient
       next if tweet_details.nil?
 
       player_handle = tweet_details.player_handle
-      total_score = players[tweet_details.player_handle].score
+      total_score = contestants[tweet_details.player_handle].score
 
       tweet = "@#{player_handle} {code: ##{tweet_details.code}, guess: #{tweet_details.guess}, answer: #{tweet_details.answer}, response: #{tweet_details.response}, total_score: #{total_score}}"[0...140]
       @client.update(tweet)
