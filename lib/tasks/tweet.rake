@@ -15,13 +15,14 @@ namespace :tweet do
   task results: :environment do
     begin
       twitter_client = TwitterClient.new
-      players = twitter_client.contestant_data
+      contestant_data = twitter_client.contestant_data
+      number_of_contestants = contestant_data.length
 
-      if players.length > 0
-        champion = players.sort_by {|obj| obj.score}.last
+      if number_of_contestants > 0
+        champion = contestant_data.values.sort{ |a, b|  b.score <=> a.score }.first
 
-        twitter_client.update("Todays winner is @#{champion.handle} with a total of $#{champion.score}. Number of contestants: #{players.length}")
-        BotData.create(:winner => champion.handle, :num_players => players.length, :last_tweet_read => BotData.most_recent_clue.to_s)
+        twitter_client.update("Todays winner is @#{champion.handle} with a total of $#{champion.score}. Number of contestants: #{number_of_contestants}")
+        BotData.create(:winner => champion.handle, :num_players => number_of_contestants, :last_tweet_read => BotData.most_recent_clue.to_s)
       else
         twitter_client.update("Nobody JEOP'd today! @ryanjpodonnell spice it up!")
         BotData.create(:last_tweet_read => BotData.most_recent_clue.to_s)
