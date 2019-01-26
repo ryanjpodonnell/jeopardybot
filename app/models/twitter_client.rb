@@ -15,8 +15,8 @@ class TwitterClient
 
     since = [BotData.yesterdays_final_clue, BotData.most_recent_clue].min
     recent_tweets(since).each do |tweet|
+      next if valid_tweet?(tweet) == false
       tweet_details = TweetDetails.new(tweet)
-      next if tweet_details.nil?
 
       player_handle = tweet_details.player_handle
       player = contestants[player_handle]
@@ -36,8 +36,8 @@ class TwitterClient
     since = BotData.most_recent_clue
 
     recent_tweets(since).each do |tweet|
+      next if valid_tweet?(tweet) == false
       tweet_details = TweetDetails.new(tweet)
-      next if tweet_details.nil?
 
       player_handle = tweet_details.player_handle
       total_score = contestants[tweet_details.player_handle].score
@@ -65,5 +65,16 @@ class TwitterClient
       :since_id => since,
       :count => 200,
     })
+  end
+
+  def valid_tweet?(tweet)
+    hashtags = tweet.hashtags
+    return false if hashtags.length == 0
+
+    code = hashtags.first.text.upcase
+    clue = Clue.find_by(:code => code)
+    return false if clue.nil?
+
+    true
   end
 end
