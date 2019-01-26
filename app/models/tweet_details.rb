@@ -11,7 +11,7 @@ class TweetDetails
 
     @code = code
     @player_handle = tweet.uri.to_s.split('/')[3]
-    @guess = Judge.parse_text(tweet.text)
+    @guess = Judge.parse_text(tweet.text.dup)
     @answer = clue.answer
     @response = Judge.check_answer(@guess.downcase, @answer)
     @value = calculate_value
